@@ -1,11 +1,3 @@
-require("./lib/swisscalc.lib.format.js");
-require("./lib/swisscalc.lib.operator.js");
-require("./lib/swisscalc.lib.operatorCache.js");
-require("./lib/swisscalc.lib.shuntingYard.js");
-require("./lib/swisscalc.display.numericDisplay.js");
-require("./lib/swisscalc.display.memoryDisplay.js");
-require("./lib/swisscalc.calc.calculator.js");
-
 import React from 'react';
 import {StyleSheet, Dimensions, View} from 'react-native';
 import InputPortraitButtons from "./components/InputPortraitButtons";
@@ -13,6 +5,11 @@ import InputLandscapeButtons from "./components/InputLandscapeButtons";
 import PortraitDisplay from "./components/PortraitDisplay";
 import LandscapeDisplay from "./components/LandscapeDisplay";
 
+function factorial(n) {
+    if (n < 0) return;
+    if (n < 2) return 1;
+    return n * factorial(n - 1);
+}
 
 export default class CalculatorScreen extends React.Component {
 
@@ -20,142 +17,180 @@ export default class CalculatorScreen extends React.Component {
         super(props);
         this.state = {
             displayValue: "0",
+            value: "",
+            calculatorLine: "",
+            allowDot: true,
+            allowPlusMinus: true,
             orientation: "portrait",
-            buttons :[
+            buttons: [
                 [{
                     backgroundColor: '#a9a9a9',
                     title: 'AC',
-                    disable:false,
+                    disable: false,
                     borderColor: '#555759',
-                    onPress: () => {this.onClearPress()},
+                    onPress: () => {
+                        this.onClearPress()
+                    },
                     color: '#e8e9ea'
                 }],
                 [{
                     backgroundColor: '#a9a9a9',
                     title: '7',
-                    disable:false,
+                    disable: false,
                     borderColor: '#555759',
-                    onPress: () => {this.onDigitPress("7")},
-                    color: '#e8e9ea'
-                },
-                {
-                    backgroundColor: '#a9a9a9',
-                    title: '8',
-                    disable:false,
-                    borderColor: '#555759',
-                    onPress: () => {this.onDigitPress("8")},
-                    color: '#e8e9ea'
-                },
-                {
-                    backgroundColor: '#a9a9a9',
-                    title: '9',
-                    disable:false,
-                    borderColor: '',
-                    onPress: () => {this.onDigitPress("9")},
+                    onPress: () => {
+                        this.onDigitPress("7")
+                    },
                     color: '#e8e9ea'
                 },
                     {
                         backgroundColor: '#a9a9a9',
-                        title: '/',
-                        disable:false,
+                        title: '8',
+                        disable: false,
+                        borderColor: '#555759',
+                        onPress: () => {
+                            this.onDigitPress("8")
+                        },
+                        color: '#e8e9ea'
+                    },
+                    {
+                        backgroundColor: '#a9a9a9',
+                        title: '9',
+                        disable: false,
                         borderColor: '',
-                        onPress: () => {this.onBinaryOperatorPress(this.oc.DivisionOperator)},
+                        onPress: () => {
+                            this.onDigitPress("9")
+                        },
+                        color: '#e8e9ea'
+                    },
+                    {
+                        backgroundColor: '#a9a9a9',
+                        title: '/',
+                        disable: false,
+                        borderColor: '',
+                        onPress: () => {
+                            this.onBinaryOperatorPress('/')
+                        },
                         color: '#e8e9ea'
                     }
                 ],
                 [{
                     backgroundColor: '#a9a9a9',
                     title: '4',
-                    disable:false,
+                    disable: false,
                     borderColor: '#555759',
-                    onPress: () => {this.onDigitPress("4")},
+                    onPress: () => {
+                        this.onDigitPress("4")
+                    },
                     color: '#e8e9ea'
                 },
-                {
-                    backgroundColor: '#a9a9a9',
-                    title: '5',
-                    disable:false,
-                    borderColor: '#555759',
-                    onPress: () => {this.onDigitPress("5")},
-                    color: '#e8e9ea'
-                },
-                {
-                    backgroundColor: '#a9a9a9',
-                    title: '6',
-                    disable:false,
-                    borderColor: '',
-                    onPress: () => {this.onDigitPress("6")},
-                    color: '#e8e9ea'
-                },{
+                    {
+                        backgroundColor: '#a9a9a9',
+                        title: '5',
+                        disable: false,
+                        borderColor: '#555759',
+                        onPress: () => {
+                            this.onDigitPress("5")
+                        },
+                        color: '#e8e9ea'
+                    },
+                    {
+                        backgroundColor: '#a9a9a9',
+                        title: '6',
+                        disable: false,
+                        borderColor: '',
+                        onPress: () => {
+                            this.onDigitPress("6")
+                        },
+                        color: '#e8e9ea'
+                    }, {
                     backgroundColor: '#a9a9a9',
                     title: 'x',
-                    disable:false,
+                    disable: false,
                     borderColor: '',
-                    onPress: () => {this.onBinaryOperatorPress(this.oc.MultiplicationOperator)},
+                    onPress: () => {
+                        this.onBinaryOperatorPress('*')
+                    },
                     color: '#e8e9ea'
                 }],
                 [{
                     backgroundColor: '#a9a9a9',
                     title: '1',
-                    disable:false,
+                    disable: false,
                     borderColor: '#555759',
-                    onPress: () => {this.onDigitPress("1")},
-                    color: '#e8e9ea'
-                },
-                {
-                    backgroundColor: '#a9a9a9',
-                    title: '2',
-                    disable:false,
-                    borderColor: '#555759',
-                    onPress: () => {this.onDigitPress("2")},
-                    color: '#e8e9ea'
-                },
-                {
-                    backgroundColor: '#a9a9a9',
-                    title: '3',
-                    disable:false,
-                    borderColor: '',
-                    onPress: () => {this.onDigitPress("3")},
+                    onPress: () => {
+                        this.onDigitPress("1")
+                    },
                     color: '#e8e9ea'
                 },
                     {
                         backgroundColor: '#a9a9a9',
-                        title: '-',
-                        disable:false,
+                        title: '2',
+                        disable: false,
+                        borderColor: '#555759',
+                        onPress: () => {
+                            this.onDigitPress("2")
+                        },
+                        color: '#e8e9ea'
+                    },
+                    {
+                        backgroundColor: '#a9a9a9',
+                        title: '3',
+                        disable: false,
                         borderColor: '',
-                        onPress: () => {this.onBinaryOperatorPress(this.oc.SubtractionOperator)},
+                        onPress: () => {
+                            this.onDigitPress("3")
+                        },
+                        color: '#e8e9ea'
+                    },
+                    {
+                        backgroundColor: '#a9a9a9',
+                        title: '-',
+                        disable: false,
+                        borderColor: '',
+                        onPress: () => {
+                            this.onBinaryOperatorPress('-')
+                        },
                         color: '#e8e9ea'
                     }
                 ],
                 [{
                     backgroundColor: '#a9a9a9',
                     title: '0',
-                    disable:false,
+                    disable: false,
                     borderColor: '#555759',
-                    onPress: () => {this.onDigitPress("0")},
+                    onPress: () => {
+                        this.onDigitPress("0")
+                    },
                     color: '#e8e9ea'
                 },
-                {
-                    backgroundColor: '#a9a9a9',
-                    title: '.',
-                    disable:false,
-                    borderColor: '',
-                    onPress: () => {this.onDigitPress('.')},
-                    color: '#e8e9ea'
-                },
-                {
-                    backgroundColor: '#a9a9a9',
-                    title: '=',
-                    disable:false,
-                    borderColor: '',
-                    onPress: () => {this.onEqualsPress()},
-                    color: '#e8e9ea'
-                },{
+                    {
+                        backgroundColor: '#a9a9a9',
+                        title: '.',
+                        disable: false,
+                        borderColor: '',
+                        onPress: () => {
+                            this.onDotPress('.')
+                        },
+                        color: '#e8e9ea'
+                    },
+                    {
+                        backgroundColor: '#a9a9a9',
+                        title: '=',
+                        disable: false,
+                        borderColor: '',
+                        onPress: () => {
+                            this.onEqualsPress()
+                        },
+                        color: '#e8e9ea'
+                    }, {
                     backgroundColor: '#a9a9a9',
                     title: '+',
-                    disable:false,
+                    disable: false,
                     borderColor: '',
-                    onPress: () => {this.onBinaryOperatorPress(this.oc.AdditionOperator)},
+                    onPress: () => {
+                        this.onBinaryOperatorPress('+')
+                    },
                     color: '#e8e9ea'
                 }]
 
@@ -163,23 +198,22 @@ export default class CalculatorScreen extends React.Component {
         }
 
 
-        this.oc = global.swisscalc.lib.operatorCache;
-        this.calc = new global.swisscalc.calc.calculator();
 
         Dimensions.addEventListener('change', () => {
             const {width, height} = Dimensions.get("window");
-            var orientation = (width > height) ? "landscape" : "portrait";
+            const orientation = (width > height) ? "landscape" : "portrait";
             this.setState({orientation: orientation});
         });
     }
 
-    RenderButtons(){
+    RenderButtons() {
 
-        let layout = this.state.buttons.map((row,index)=> {
+        let layout = this.state.buttons.map((row, index) => {
             let rowItem = row.map((buttonItems, buttonIndex) => {
                 return (
                     <InputPortraitButtons
-                        onPress={ buttonItems.onPress} disable={buttonItems.disable} title= {buttonItems.title} key={'btn-' + buttonIndex}
+                        onPress={buttonItems.onPress} disable={buttonItems.disable} title={buttonItems.title}
+                        key={'btn-' + buttonIndex}
                     />
                 )
             });
@@ -189,44 +223,109 @@ export default class CalculatorScreen extends React.Component {
     }
 
     onDigitPress = (digit) => {
-        this.calc.addDigit(digit);
-        this.setState({displayValue: this.calc.getMainDisplay()});
+        let ds = ''
+        ds += digit
+        if (this.state.displayValue === "0") {
+            this.setState({displayValue: this.state.value + ds});
+        } else {
+            this.setState({displayValue: this.state.displayValue + ds});
+        }
+    }
+
+    onDotPress = (dot) => {
+        let ds = ''
+        ds += dot
+        if (this.state.allowDot === true) {
+            if (this.state.displayValue === "0") {
+                this.setState(
+                    {
+                        displayValue: this.state.displayValue + ds,
+                        allowDot: false
+                    });
+            } else {
+                this.setState({
+                    displayValue: this.state.displayValue + ds,
+                    allowDot: false
+                });
+            }
+        }
     }
 
     onUnaryOperatorPress = (operator) => {
-        this.calc.addUnaryOperator(operator);
-        this.setState({displayValue: this.calc.getMainDisplay()});
+        if(operator === "x^2"){
+            this.setState({displayValue: Math.pow(this.state.displayValue,2)});
+        }
+        if(operator === "x^3"){
+            this.setState({displayValue: Math.pow(this.state.displayValue,3)});
+        }
+        if(operator === "π"){
+            this.setState({displayValue: Math.PI});
+        }
+        if(operator === "e"){
+            this.setState({displayValue: Math.E});
+        }
+        if(operator === "y√x"){
+            this.setState({displayValue: Math.sqrt(this.state.displayValue)});
+        }
+        if(operator === "x!"){
+            this.setState({displayValue: factorial(this.state.displayValue)});
+        }
+        if(operator === "e^x"){
+            this.setState({displayValue: Math.pow(Math.E, this.state.displayValue)});
+        }
+        if(operator === "10^x"){
+            this.setState({displayValue: Math.pow(10, this.state.displayValue)});
+        }
+        if(operator === "ln"){
+            this.setState({displayValue: Math.log(this.state.displayValue)});
+        }
+        if(operator === "log10"){
+            this.setState({displayValue:  Math.log(this.state.displayValue) / Math.LN10});
+        }
     }
 
     onBinaryOperatorPress = (operator) => {
-        this.calc.addBinaryOperator(operator);
-        this.setState({displayValue: this.calc.getMainDisplay()});
+        this.setState({
+            displayValue: this.state.displayValue + operator,
+            allowDot: true
+        });
     }
 
     onEqualsPress = () => {
-        this.calc.equalsPressed();
-        this.setState({displayValue: this.calc.getMainDisplay()});
+        let result= eval(this.state.displayValue);
+        this.setState({displayValue: result % 1 === 0 ? result : result.toFixed(2)});
     }
 
     onClearPress = () => {
-        this.calc.clear();
-        this.setState({displayValue: this.calc.getMainDisplay()});
+        this.setState({
+            displayValue: "0",
+            allowDot: true,
+            allowPlusMinus: true
+        });
     }
 
     onPlusMinusPress = () => {
-        this.calc.negate();
-        this.setState({displayValue: this.calc.getMainDisplay()});
+        if (this.state.allowPlusMinus === true) {
+            if(this.state.displayValue !== '0') {
+                this.setState({
+                    displayValue: "-" + this.state.displayValue,
+                    allowPlusMinus: false
+                });
+            }
+        }
     }
 
-    onBackspacePress = () => {
-        this.calc.backspace();
-        this.setState({displayValue: this.calc.getMainDisplay()});
+    onModulusPress = (operator) => {
+        this.setState({
+            displayValue: this.state.displayValue + operator,
+            allowDot: true
+        });
     }
 
     renderPortrait() {
         return (
             <View style={styles.container}>
-                <View style={styles.resultContainer} >
+                <View style={styles.resultContainer}>
                     <PortraitDisplay display={this.state.displayValue}/>
                 </View>
 
@@ -247,81 +346,104 @@ export default class CalculatorScreen extends React.Component {
 
                 <View style={styles.inputContainer}>
                     <View style={styles.rowInput}>
-                        <InputLandscapeButtons onPress={() =>{this.onUnaryOperatorPress(this.oc.SquareRootOperator)}} title="y√x"/>
-                        <InputLandscapeButtons onPress={() =>{this.onUnaryOperatorPress(this.oc.FactorialOperator)}} title="x!"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("y√x")
+                        }} title="y√x"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("x!")
+                        }} title="x!"/>
                         <InputLandscapeButtons onPress={this.onClearPress} title="AC"/>
                         <InputLandscapeButtons onPress={this.onPlusMinusPress} title="+/-"/>
-                        <InputLandscapeButtons onPress={() => { this.onUnaryOperatorPress(this.oc.PercentOperator)}}title="%"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onModulusPress('%')
+                        }} title="%"/>
                     </View>
 
                     <View style={styles.rowInput}>
 
-                            <InputLandscapeButtons onPress={() =>{this.onUnaryOperatorPress(this.oc.EExponentialOperator)}}  title="e^x"/>
-                            <InputLandscapeButtons onPress={() =>{this.onUnaryOperatorPress(this.oc.TenExponentialOperator)}} title="10^x"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("e^x")
+                        }} title="e^x"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("10^x")
+                        }} title="10^x"/>
 
 
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("7")
-                        }} title="7" />
+                        }} title="7"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("8")
-                        }} title="8" />
+                        }} title="8"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("9")
-                        }} title="9" />
+                        }} title="9"/>
                         <InputLandscapeButtons onPress={() => {
-                            this.onBinaryOperatorPress(this.oc.DivisionOperator)
-                        }} title="÷" />
+                            this.onBinaryOperatorPress("/")
+                        }} title="÷"/>
 
                     </View>
 
                     <View style={styles.rowInput}>
-                        <InputLandscapeButtons onPress={() => { this.onUnaryOperatorPress(this.oc.NaturalLogOperator)}} title="ln"/>
-                        <InputLandscapeButtons onPress={() => { this.onUnaryOperatorPress(this.oc.LogBase10Operator)}} title="log10"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("ln")
+                        }} title="ln"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("log10")
+                        }} title="log10"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("4")
-                        }} title="4" />
+                        }} title="4"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("5")
-                        }} title="5" />
+                        }} title="5"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("6")
-                        }} title="6" />
+                        }} title="6"/>
                         <InputLandscapeButtons onPress={() => {
-                            this.onBinaryOperatorPress(this.oc.MultiplicationOperator)
-                        }} title="x" />
+                            this.onBinaryOperatorPress("*")
+                        }} title="x"/>
                     </View>
 
                     <View style={styles.rowInput}>
-                        <InputLandscapeButtons onPress={() => { this.onUnaryOperatorPress(this.oc.EOperator)}} title="e"/>
-                        <InputLandscapeButtons onPress={() => { this.onUnaryOperatorPress(this.oc.XSquaredOperator)}} title="x^2"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("e")
+                        }} title="e"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("x^2")
+                        }} title="x^2"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("1")
-                        }} title="1" />
+                        }} title="1"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("2")
-                        }} title="2" />
+                        }} title="2"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("3")
-                        }} title="3" />
+                        }} title="3"/>
                         <InputLandscapeButtons onPress={() => {
-                            this.onBinaryOperatorPress(this.oc.SubtractionOperator)
-                        }} title="-" />
+                            this.onBinaryOperatorPress("-")
+                        }} title="-"/>
 
                     </View>
 
                     <View style={styles.rowInput}>
-                        <InputLandscapeButtons onPress={() => { this.onUnaryOperatorPress(this.oc.PiOperator)}} title="π"/>
-                        <InputLandscapeButtons onPress={() => { this.onUnaryOperatorPress(this.oc.XCubedOperator)}} title="x^3"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("π")
+                        }} title="π"/>
+                        <InputLandscapeButtons onPress={() => {
+                            this.onUnaryOperatorPress("x^3")
+                        }} title="x^3"/>
                         <InputLandscapeButtons onPress={() => {
                             this.onDigitPress("0")
                         }} title="0" color="white" backgroundColor="#607D8B" style={{flex: 2}}/>
                         <InputLandscapeButtons onPress={() => {
-                            this.onDigitPress(".")
+                            this.onDotPress(".")
                         }} title="." color="white" backgroundColor="#607D8B"/>
-                        <InputLandscapeButtons onPress={this.onEqualsPress} title="=" color="white" backgroundColor="#DCA394"/>
+                        <InputLandscapeButtons onPress={this.onEqualsPress} title="=" color="white"
+                                               backgroundColor="#DCA394"/>
                         <InputLandscapeButtons onPress={() => {
-                            this.onBinaryOperatorPress(this.oc.AdditionOperator)
+                            this.onBinaryOperatorPress("+")
                         }} title="+" color="white" backgroundColor="#DCA394"/>
                     </View>
                 </View>
@@ -346,7 +468,7 @@ export default class CalculatorScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    container: {flex: 1, paddingVertical: 50 },
+    container: {flex: 1, paddingVertical: 50},
     resultContainer: {
         flex: 2,
         justifyContent: 'center',
